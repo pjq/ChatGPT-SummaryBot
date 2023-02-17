@@ -20,14 +20,17 @@ This is a Python script for fetching documents from the Internet and feeding the
 ```
 pip3 install requests beautifulsoup revChatGPT
 ```
+Then follow the revChatGPT to setup the ChatGPT config
+- https://github.com/topics/revchatgpt
+
 2. Run the script:
 ```
-python auto_chat_bot.py
+python AutoSummaryBot.py
 ```
 
 The script will first print a message indicating that it is going to send some documents to the OpenAI GPT-3 model. Then it will send the smaller files one by one, and wait for 5 seconds between each file. After all the files are sent, the script will print the message "All documents sent". Finally, it will send a query to the OpenAI GPT-3 model to ask for the summary of the documents, and print the response.
 
-## Customization
+## Customization(Not Supported Yet)
 You can customize the script by changing the following parameters:
 
 - `base_url`: the website to fetch the links and contents from
