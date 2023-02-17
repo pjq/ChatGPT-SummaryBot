@@ -84,7 +84,7 @@ ChatGPT: Received and understood.
 I:Sleep 5 seconds
 I:Sleep 5 seconds
 ```
-## Customization(Not Supported Yet)
+## Customization
 You can customize the script by changing the following parameters:
 
 - `base_url`: the website to fetch the links and contents from
