@@ -23,7 +23,7 @@ Or
 pip instead -r requirements.txt
 ```
 Then follow the revChatGPT to setup the ChatGPT config
-- https://github.com/topics/revchatgpt
+- https://github.com/acheong08/ChatGPT
 
 2. Run the script:
 ```
