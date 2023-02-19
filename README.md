@@ -34,57 +34,19 @@ The script will first print a message indicating that it is going to send some d
 
 ```
 I:init_chatgpt
-I:fetch_link_contents
-I:scrape_page: https://pjq.me/?p=1906
-I:scrape_page: https://pjq.me/?p=1906#respond
-I:scrape_page: https://pjq.me/?p=1906
-I:I am going to send you some documents, and you just need say: received and understood, and after all the files sent finished, I will let you know, such as: All documents sent, and later I will ask questions
-ChatGPT: Understood! I am ready to receive the documents. Please send them my way and let me know when you have finished sending all of them. I will be sure to acknowledge each document as I receive it, and once all have been received, I will be ready to answer any questions you may have about them.
-I:You should only response: Received and understood
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
+test enable:True
+I:I am going to send you some , and you just need say: received and understood, and after all the files sent finished, I will let you know, such as: All documents sent, and later I will ask questions
+ChatGPT: Understood. I will only respond with "received and understood" after each text is sent, and await further instructions once you've sent all the documents.
+I:Sleep 1 seconds
 I:Sending file: link_to_contents_1.txt
 ChatGPT: Received and understood.
-I:Sleep 5 seconds
-I:Sending file: link_to_contents_2.txt
-ChatGPT: It looks like this is a blog post or a website that contains information about various topics, such as technology, software, and personal experiences. The categories listed include English, Tech, Android, Linux, Software, and personal reflections. The archives show a list of past posts, and the recent comments section displays comments on various blog posts. The tags section lists keywords that are related to the content on the website.
-I:You should only response: Received and understood
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
-ChatGPT: Received and understood
-I:Sleep 5 seconds
-I:Sending file: link_to_contents_3.txt
-ChatGPT: It looks like you have successfully integrated the ChatGPT model with the Xiao Ai smart home assistant. It appears that you used a project called "Xiaoai-ChatGPT" as a reference for this integration. This project connects the Xiao Ai device to the ChatGPT API through a series of steps, including cloning the ChatGPT repository, installing the "revChatGPT" and "miservice" packages, and setting environment variables for your Xiaomi account. The final step involves running the "xiaogpt.py" script to initiate the connection between the Xiao Ai device and the ChatGPT API. When you ask the Xiao Ai device a question that starts with "帮我回答", the question will be forwarded to the ChatGPT API, and the answer will be played back through the Xiao Ai device.
-I:You should only response: Received and understood
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
-I:Sending file: link_to_contents_4.txt
-ChatGPT: I'm sorry, but I am not sure what you would like me to do with this information. Could you please provide more context or clarify your request?
-I:You should only response: Received and understood
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
-I:Sending file: link_to_contents_5.txt
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
+I:Sleep 1 seconds
 I:All documents sent
 ChatGPT: Received and understood.
-I:Sleep 5 seconds
-I:Summary of the documents I just sent to you
-ChatGPT: I'm sorry, but I didn't receive any documents. Can you please provide more information or resend the documents?
-I:You should only response: Received and understood
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
-ChatGPT: I'm sorry, but you didn't send me any documents recently.
-I:You should only response: Received and understood
-ChatGPT: Received and understood.
-I:Sleep 5 seconds
-I:Sleep 5 seconds
+I:Sleep 1 seconds
+I:Please help to summarize the content
+ChatGPT: The content is about ChatGPT, a chatbot developed by OpenAI and launched in November 2022. It is built on top of OpenAI's GPT-3 family of large language models and has been fine-tuned using both supervised and reinforcement learning techniques. The language model can answer questions, and assist you with tasks such as composing emails, essays, and code. Usage is open to the public for free, while there is also a paid subscription version called ChatGPT Plus. The chatbot is a big deal in the tech industry, and has received attention from various news sources.
+I:Sleep 1 seconds
 ```
 ## Customization
 You can customize the script by changing the following parameters:

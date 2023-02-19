@@ -6,8 +6,12 @@ from bs4 import BeautifulSoup
 from revChatGPT.V1 import Chatbot, configure
 
 END_FLAG = "All documents sent"
+TEST_ENABLE=False
 
 current_time = time.strftime("%Y%m%d-%H%M%S")
+if  TEST_ENABLE:
+    current_time="20230220-003507"
+
 LINK_TO_CONTENT = f"link_to_contents_{current_time}.txt"
 LINK_TO_CONTENT_DIR = f"link_to_content_{current_time}"
 driver = webdriver.Chrome()
@@ -114,11 +118,16 @@ class AutoChatBot:
         path = LINK_TO_CONTENT_DIR
         files = os.listdir(path)
         files.sort(key=lambda x: os.path.getctime(os.path.join(path, x)))
+        total = len(files)
         for filename in files:
             with open(os.path.join(path, filename), "r", encoding="utf-8", errors="replace") as f:
-                log(f"Sending file: {filename}")
+                log(f"Sending file: {filename}, remaining {total}")
                 content = f.read()
-                self.chatbot_ask(content)
+                total-=1
+                if total <= 0:
+                    self.chatbot_ask(content, False)
+                else:
+                    self.chatbot_ask(content)
 
 
 # if __name__ == "__main__":
@@ -155,15 +164,18 @@ if __name__ == "__main__":
 
     bot = AutoChatBot(base_url=args.base_url, chunk_size=args.chunk_size, retries=args.retries,
                       sleep_time=args.sleep_time, conversation_id=args.conversation_id)
-    bot.fetch_link_contents()
-    # close the browser window
-    driver.quit()
+    if TEST_ENABLE:
+        print(f"test enable:{TEST_ENABLE}")
+    else:
+        bot.fetch_link_contents()
+        # close the browser window
+        driver.quit()
     bot.split_file(LINK_TO_CONTENT, LINK_TO_CONTENT_DIR, args.chunk_size)
-    log(f"I am going to send you some documents, and you just need say: received and understood, and after all the files sent finished, I will let you know, such as: {END_FLAG}, and later I will ask questions")
-    bot.chatbot_ask(
-        f"I am going to send you some text documents, and you just need say: received and understood, and after all the documents sent finished, I will let you know, such as: {END_FLAG}, and later I will ask questions about those documents")
+
+    log(f"I will send you some text, it means the url and the content within it, you MUST say: received and understood, no other output until I say:{END_FLAG}, and later I will ask questions about those documents")
+    bot.chatbot_ask(f"I will send you some text, it means the url and the content within it, you MUST say: received and understood, no other output until I say:{END_FLAG}, and later I will ask questions about those documents")
     bot.send_all_files_to_chatgpt()
     log(END_FLAG)
-    bot.chatbot_ask(END_FLAG)
-    log("Please help to summarize the content")
-    bot.chatbot_ask("Please help to summarize the content", forcePrompt=False)
+    bot.chatbot_ask(f"{END_FLAG}, Please help to summarize the content", forcePrompt=False)
+    # log("Please help to summarize the content")
+    # bot.chatbot_ask("Please help to summarize the content", forcePrompt=False)
