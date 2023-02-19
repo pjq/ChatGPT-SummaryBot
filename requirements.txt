@@ -1,6 +1,5 @@
 selenium
 rich
-git+https://github.com/yihong0618/MiService
 requests
 revChatGPT
 BeautifulSoup4

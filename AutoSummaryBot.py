@@ -6,8 +6,10 @@ from bs4 import BeautifulSoup
 from revChatGPT.V1 import Chatbot, configure
 
 END_FLAG = "All documents sent"
-LINK_TO_CONTENT = "link_to_contents.txt"
-LINK_TO_CONTENT_DIR = "link_to_content"
+
+current_time = time.strftime("%Y%m%d-%H%M%S")
+LINK_TO_CONTENT = f"link_to_contents_{current_time}.txt"
+LINK_TO_CONTENT_DIR = f"link_to_content_{current_time}"
 driver = webdriver.Chrome()
 
 def log(msg):
@@ -57,8 +59,7 @@ class AutoChatBot:
                 links.append(href)
         # Fetch the contents of each link
         if len(links) == 0:
-            log("not link found, and no contents")
-            exit(0)
+            log("no link found in the main page")
         for link in links:
             page_contents[link] = self.extract_text(self.scrape_page(link))
         # Store the mapping of link to contents
@@ -100,9 +101,9 @@ class AutoChatBot:
                             continue
                 break
             except Exception as e:
-                log("Error in chatbot_ask: ", str(e))
+                log(f"Error in chatbot_ask: {str(e)}")
                 retries += 1
-        log("Sleep 5 seconds")
+        log(f"Sleep {self.sleep_time} seconds")
         time.sleep(self.sleep_time)
 
     def send_all_files_to_chatgpt(self):
@@ -140,7 +141,7 @@ if __name__ == "__main__":
     parser.add_argument("--sleep-time", type=int, default=1, help="The time to wait between each file in seconds")
 
     parser.add_argument(
-        "--conversation_id",
+        "--conversation-id",
         dest="conversation_id",
         type=str,
         default="e226ac01-da16-4e36-8bcc-xxxxxxxxxxx",

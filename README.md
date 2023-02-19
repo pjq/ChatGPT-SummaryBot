@@ -27,7 +27,7 @@ Then follow the revChatGPT to setup the ChatGPT config
 
 2. Run the script:
 ```
-python3 AutoSummaryBot.py --conversation_id="xxxxxxxxxxxxxx"
+python3 AutoSummaryBot.py --conversation-id='xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx' --base-url='https://www.google.com/search?q=ChatGPT'
 ```
 
 The script will first print a message indicating that it is going to send some documents to the OpenAI ChatGPT model. Then it will send the smaller files one by one, and wait for 5 seconds between each file. After all the files are sent, the script will print the message "All documents sent". Finally, it will send a query to the OpenAI ChatGPT model to ask for the summary of the documents, and print the response.
