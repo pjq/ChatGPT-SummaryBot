@@ -19,6 +19,8 @@ This is a Python script for fetching documents from the Internet and feeding the
 1. Install the required libraries:
 ```
 pip3 install requests beautifulsoup revChatGPT
+Or
+pip instead -r requirements.txt
 ```
 Then follow the revChatGPT to setup the ChatGPT config
 - https://github.com/topics/revchatgpt
