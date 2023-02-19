@@ -12,8 +12,10 @@ LINK_TO_CONTENT = f"link_to_contents_{current_time}.txt"
 LINK_TO_CONTENT_DIR = f"link_to_content_{current_time}"
 driver = webdriver.Chrome()
 
+
 def log(msg):
     print(f"I:{msg}")
+
 
 class AutoChatBot:
     def __init__(self, base_url, chunk_size, retries, sleep_time, conversation_id):
@@ -97,7 +99,7 @@ class AutoChatBot:
                         if forcePrompt:
                             if "understood" not in message:
                                 log("You should only response: Received and understood")
-                                self.chatbot_ask("You should only response: Received and understood")
+                                query = "You should only response: Received and understood"
                                 retries += 1
                                 continue
 
@@ -151,7 +153,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    bot = AutoChatBot(base_url=args.base_url, chunk_size=args.chunk_size, retries=args.retries, sleep_time=args.sleep_time, conversation_id=args.conversation_id)
+    bot = AutoChatBot(base_url=args.base_url, chunk_size=args.chunk_size, retries=args.retries,
+                      sleep_time=args.sleep_time, conversation_id=args.conversation_id)
     bot.fetch_link_contents()
     # close the browser window
     driver.quit()
