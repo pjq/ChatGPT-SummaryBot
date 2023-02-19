@@ -1,7 +1,6 @@
 import os
 import time
-
-import requests
+from selenium import webdriver
 import argparse
 from bs4 import BeautifulSoup
 from revChatGPT.V1 import Chatbot, configure
@@ -9,11 +8,10 @@ from revChatGPT.V1 import Chatbot, configure
 END_FLAG = "All documents sent"
 LINK_TO_CONTENT = "link_to_contents.txt"
 LINK_TO_CONTENT_DIR = "link_to_content"
-
+driver = webdriver.Chrome()
 
 def log(msg):
     print(f"I:{msg}")
-
 
 class AutoChatBot:
     def __init__(self, base_url, chunk_size, retries, sleep_time, conversation_id):
@@ -32,17 +30,26 @@ class AutoChatBot:
 
     def scrape_page(self, url):
         log(f"scrape_page: {url}")
-        page = requests.get(url)
-        return self.extract_text(page.content)
+        # page = requests.get(url)
+        # create a new instance of the Firefox driver
+        # go to the website you want to scrape
+        driver.get(url)
+        # get the page source
+        page_source = driver.page_source
+        # content = self.extract_text(page_source.content)
+        # do whatever you want with the page source
+
+        return page_source
 
     def fetch_link_contents(self):
         log("fetch_link_contents")
         page_contents = {}
         links = []
         # Fetch the main page
-        main_page = requests.get(self.base_url)
-        page_contents[self.base_url] = self.extract_text(main_page.content)
-        soup = BeautifulSoup(main_page.content, "html.parser")
+        # main_page = requests.get(self.base_url)
+        main_page = self.scrape_page(self.base_url)
+        page_contents[self.base_url] = self.extract_text(main_page)
+        soup = BeautifulSoup(main_page, "html.parser")
         # Extract all links from the main page
         for link in soup.find_all("a"):
             href = link.get("href")
@@ -53,7 +60,7 @@ class AutoChatBot:
             log("not link found, and no contents")
             exit(0)
         for link in links:
-            page_contents[link] = self.scrape_page(link)
+            page_contents[link] = self.extract_text(self.scrape_page(link))
         # Store the mapping of link to contents
         with open(LINK_TO_CONTENT, "w") as f:
             for link, content in page_contents.items():
@@ -130,7 +137,7 @@ if __name__ == "__main__":
     parser.add_argument("--chunk-size", type=int, default=1024 * 4, help="The size of each smaller file in bytes")
     parser.add_argument("--retries", type=int, default=2,
                         help="The number of retries when sending a file to the OpenAI GPT-3 model")
-    parser.add_argument("--sleep-time", type=int, default=5, help="The time to wait between each file in seconds")
+    parser.add_argument("--sleep-time", type=int, default=1, help="The time to wait between each file in seconds")
 
     parser.add_argument(
         "--conversation_id",
@@ -143,6 +150,8 @@ if __name__ == "__main__":
 
     bot = AutoChatBot(base_url=args.base_url, chunk_size=args.chunk_size, retries=args.retries, sleep_time=args.sleep_time, conversation_id=args.conversation_id)
     bot.fetch_link_contents()
+    # close the browser window
+    driver.quit()
     bot.split_file(LINK_TO_CONTENT, LINK_TO_CONTENT_DIR, args.chunk_size)
     log(f"I am going to send you some documents, and you just need say: received and understood, and after all the files sent finished, I will let you know, such as: {END_FLAG}, and later I will ask questions")
     bot.chatbot_ask(
