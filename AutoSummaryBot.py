@@ -16,11 +16,12 @@ def log(msg):
 
 
 class AutoChatBot:
-    def __init__(self, base_url, chunk_size, retries, sleep_time):
+    def __init__(self, base_url, chunk_size, retries, sleep_time, conversation_id):
         self.base_url = base_url
         self.chunk_size = chunk_size
         self.retries = retries
         self.sleep_time = sleep_time
+        self.conversation_id = conversation_id
         self.init_chatgpt()
 
     def extract_text(self, content):
@@ -40,6 +41,7 @@ class AutoChatBot:
         links = []
         # Fetch the main page
         main_page = requests.get(self.base_url)
+        page_contents[self.base_url] = self.extract_text(main_page.content)
         soup = BeautifulSoup(main_page.content, "html.parser")
         # Extract all links from the main page
         for link in soup.find_all("a"):
@@ -71,7 +73,7 @@ class AutoChatBot:
                 chunk_num += 1
 
     def init_chatgpt(self):
-        self.chatbot = Chatbot(configure())
+        self.chatbot = Chatbot(configure(), self.conversation_id)
         log("init_chatgpt")
 
     def chatbot_ask(self, query):
@@ -129,9 +131,17 @@ if __name__ == "__main__":
     parser.add_argument("--retries", type=int, default=2,
                         help="The number of retries when sending a file to the OpenAI GPT-3 model")
     parser.add_argument("--sleep-time", type=int, default=5, help="The time to wait between each file in seconds")
+
+    parser.add_argument(
+        "--conversation_id",
+        dest="conversation_id",
+        type=str,
+        default="e226ac01-da16-4e36-8bcc-xxxxxxxxxxx",
+        help="ChatGPT conversation_id",
+    )
     args = parser.parse_args()
 
-    bot = AutoChatBot(base_url=args.base_url, chunk_size=args.chunk_size, retries=args.retries, sleep_time=args.sleep_time)
+    bot = AutoChatBot(base_url=args.base_url, chunk_size=args.chunk_size, retries=args.retries, sleep_time=args.sleep_time, conversation_id=args.conversation_id)
     bot.fetch_link_contents()
     bot.split_file(LINK_TO_CONTENT, LINK_TO_CONTENT_DIR, args.chunk_size)
     log(f"I am going to send you some documents, and you just need say: received and understood, and after all the files sent finished, I will let you know, such as: {END_FLAG}, and later I will ask questions")
