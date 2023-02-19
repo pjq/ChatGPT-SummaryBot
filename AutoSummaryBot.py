@@ -84,7 +84,7 @@ class AutoChatBot:
         self.chatbot = Chatbot(configure(), self.conversation_id)
         log("init_chatgpt")
 
-    def chatbot_ask(self, query):
+    def chatbot_ask(self, query, forcePrompt=True):
         retries = 0
         while retries < self.retries:
             try:
@@ -94,11 +94,13 @@ class AutoChatBot:
                     message = "ChatGPT: " + message
                     print(message)
                     if query not in END_FLAG:
-                        if "understood" not in message:
-                            log("You should only response: Received and understood")
-                            self.chatbot_ask("You should only response: Received and understood")
-                            retries += 1
-                            continue
+                        if forcePrompt:
+                            if "understood" not in message:
+                                log("You should only response: Received and understood")
+                                self.chatbot_ask("You should only response: Received and understood")
+                                retries += 1
+                                continue
+
                 break
             except Exception as e:
                 log(f"Error in chatbot_ask: {str(e)}")
@@ -160,5 +162,5 @@ if __name__ == "__main__":
     bot.send_all_files_to_chatgpt()
     log(END_FLAG)
     bot.chatbot_ask(END_FLAG)
-    log("Summary of the documents I just sent to you")
-    bot.chatbot_ask("Summary of the documents I just sent to you")
+    log("Please help to summarize the content")
+    bot.chatbot_ask("Please help to summarize the content", forcePrompt=False)
