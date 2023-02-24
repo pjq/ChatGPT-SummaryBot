@@ -8,12 +8,17 @@ This is a Python script for fetching documents from the Internet and feeding the
 - Sending the smaller files to the OpenAI ChatGPT model using the `revChatGPT` library
 - Receiving and printing the summary of the documents from the OpenAI ChatGPT model
 
+Now it also support
+- Local text file
+- Video file(It will use the Whisper to convert the Video to text)
+
 ## Requirements
 
 - python 3.7+
 - requests
 - bs4
 - revChatGPT
+- whisper (https://github.com/openai/whisper)
 
 ## Usage
 1. Install the required libraries:
@@ -25,7 +30,36 @@ pip instead -r requirements.txt
 Then follow the revChatGPT to setup the ChatGPT config
 - https://github.com/acheong08/ChatGPT
 
-2. Run the script:
+Install whisper
+- https://github.com/openai/whisper
+
+2. Help
+```bash
+ python AutoSummaryBot.py --help
+usage: AutoSummaryBot.py [-h] [--base-url BASE_URL] [--chunk-size CHUNK_SIZE] [--retries RETRIES] [--sleep-time SLEEP_TIME] [--text-file TEXT_FILE] [--video-file VIDEO_FILE] [--lang LANG]
+                         [--conversation-id CONVERSATION_ID]
+
+Fetch the contents from a website and summarize the contents using OpenAI GPT-3
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --base-url BASE_URL   The website to fetch the links and contents from
+  --chunk-size CHUNK_SIZE
+                        The size of each smaller file in bytes
+  --retries RETRIES     The number of retries when sending a file to the OpenAI GPT-3 model
+  --sleep-time SLEEP_TIME
+                        The time to wait between each file in seconds
+  --text-file TEXT_FILE
+                        The text file to summarize
+  --video-file VIDEO_FILE
+                        The video file to summarize
+  --lang LANG           The text content lang
+  --conversation-id CONVERSATION_ID
+                        ChatGPT conversation_id
+
+```
+
+3. Run the script:
 ```
 python3 AutoSummaryBot.py --conversation-id='xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx' --base-url='https://www.google.com/search?q=ChatGPT' --chunk-size=8192
 ```

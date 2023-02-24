@@ -1,4 +1,5 @@
 import os
+import subprocess
 import time
 from selenium import webdriver
 import argparse
@@ -6,15 +7,14 @@ from bs4 import BeautifulSoup
 from revChatGPT.V1 import Chatbot, configure
 
 END_FLAG = "All documents sent"
-TEST_ENABLE=False
+TEST_ENABLE = False
 
 current_time = time.strftime("%Y%m%d-%H%M%S")
-if  TEST_ENABLE:
-    current_time="20230220-003507"
+if TEST_ENABLE:
+    current_time = "test"
 
 LINK_TO_CONTENT = f"link_to_contents_{current_time}.txt"
 LINK_TO_CONTENT_DIR = f"link_to_content_{current_time}"
-driver = webdriver.Chrome()
 
 
 def log(msg):
@@ -41,15 +41,16 @@ class AutoChatBot:
         # page = requests.get(url)
         # create a new instance of the Firefox driver
         # go to the website you want to scrape
-        driver.get(url)
+        self.driver.get(url)
         # get the page source
-        page_source = driver.page_source
+        page_source = self.driver.page_source
         # content = self.extract_text(page_source.content)
         # do whatever you want with the page source
 
         return page_source
 
     def fetch_link_contents(self):
+        self.driver = webdriver.Chrome()
         log("fetch_link_contents")
         page_contents = {}
         links = []
@@ -73,7 +74,15 @@ class AutoChatBot:
             for link, content in page_contents.items():
                 f.write(f"{link}: {content}\n")
 
-    def split_file(self, file_path, output_dir, chunk_size=1024 * 4):
+        # close the browser window
+        self.driver.quit()
+
+    def split_file(self, file_path, output_dir, chunk_size=1024 * 4, lang="en"):
+        if lang == "cn" or lang == "zh":
+            chunk_size = 1024 * 4
+        else:
+            chunk_size = 1024 * 10
+
         if not os.path.exists(LINK_TO_CONTENT_DIR):
             os.makedirs(LINK_TO_CONTENT_DIR)
         with open(file_path, "rb") as f:
@@ -123,24 +132,16 @@ class AutoChatBot:
             with open(os.path.join(path, filename), "r", encoding="utf-8", errors="replace") as f:
                 log(f"Sending file: {filename}, remaining {total}")
                 content = f.read()
-                total-=1
+                total -= 1
                 if total <= 0:
                     self.chatbot_ask(content, False)
                 else:
                     self.chatbot_ask(content)
 
+    def process_video_file(self, file_path, lang):
+        text = subprocess.run(["whisper", file_path, "--language", lang], capture_output=True, text=True).stdout
 
-# if __name__ == "__main__":
-#     # fetch_link_contents()
-# split_files()
-#     bot = AutoChatBot()
-#     log(f"I am going to send you some documents, and you just need say: received and understood, and after all the files sent finished, I will let you know, such as: {END_FLAG}, and later I will ask questions")
-#     bot.chatbot_ask(f"I am going to send you some text documents, and you just need say: received and understood, and after all the documents sent finished, I will let you know, such as: {END_FLAG}, and later I will ask questions about those documents")
-#     bot.send_all_files_to_chatgpt()
-#     log(END_FLAG)
-#     bot.chatbot_ask(END_FLAG)
-#     log("Summary of the documents I just sent to you")
-#     bot.chatbot_ask("Summary of the documents I just sent to you")
+        return text
 
 
 if __name__ == "__main__":
@@ -152,6 +153,9 @@ if __name__ == "__main__":
     parser.add_argument("--retries", type=int, default=2,
                         help="The number of retries when sending a file to the OpenAI GPT-3 model")
     parser.add_argument("--sleep-time", type=int, default=1, help="The time to wait between each file in seconds")
+    parser.add_argument("--text-file", type=str, help="The text file to summarize")
+    parser.add_argument("--video-file", type=str, help="The video file to summarize")
+    parser.add_argument("--lang", type=str, default="en", help="The text content lang")
 
     parser.add_argument(
         "--conversation-id",
@@ -164,16 +168,28 @@ if __name__ == "__main__":
 
     bot = AutoChatBot(base_url=args.base_url, chunk_size=args.chunk_size, retries=args.retries,
                       sleep_time=args.sleep_time, conversation_id=args.conversation_id)
-    if TEST_ENABLE:
-        print(f"test enable:{TEST_ENABLE}")
-    else:
-        bot.fetch_link_contents()
-        # close the browser window
-        driver.quit()
-    bot.split_file(LINK_TO_CONTENT, LINK_TO_CONTENT_DIR, args.chunk_size)
+
+    if args.text_file:
+        # Split the text file into smaller chunks and send each chunk to the OpenAI GPT-3 model
+        LINK_TO_CONTENT = args.text_file
+
+    elif args.video_file:
+        # Convert the video file to text using whisper
+        content = bot.process_video_file(args.video_file)
+        with open(LINK_TO_CONTENT, "w") as f:
+            f.write(f"{content}\n")
+            f.close()
+    elif args.base_url:
+        if TEST_ENABLE:
+            print(f"test enable:{TEST_ENABLE}")
+        else:
+            bot.fetch_link_contents()
+
+    bot.split_file(LINK_TO_CONTENT, LINK_TO_CONTENT_DIR, args.chunk_size, args.lang)
 
     log(f"I will send you some text, it means the url and the content within it, you MUST say: received and understood, no other output until I say:{END_FLAG}, and later I will ask questions about those documents")
-    bot.chatbot_ask(f"I will send you some text, it means the url and the content within it, you MUST say: received and understood, no other output until I say:{END_FLAG}, and later I will ask questions about those documents")
+    bot.chatbot_ask(
+        f"I will send you some text, it means the url and the content within it, you MUST say: received and understood, no other output until I say:{END_FLAG}, and later I will ask questions about those documents")
     bot.send_all_files_to_chatgpt()
     log(END_FLAG)
     bot.chatbot_ask(f"{END_FLAG}, Please help to summarize the content", forcePrompt=False)
