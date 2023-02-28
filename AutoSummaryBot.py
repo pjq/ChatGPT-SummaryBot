@@ -4,6 +4,7 @@ import time
 from selenium import webdriver
 import argparse
 from bs4 import BeautifulSoup
+import shutil
 from revChatGPT.V1 import Chatbot, configure
 
 END_FLAG = "All documents sent"
@@ -137,21 +138,20 @@ class AutoChatBot:
                     self.chatbot_ask(content, False)
                 else:
                     self.chatbot_ask(content)
-
-    def process_video_file(self, file_path, lang):
-        text = subprocess.run(["whisper", file_path, "--language", lang], capture_output=True, text=True).stdout
-
-        return text
-
+    def process_video_file(self, file_path, lang, outputfile):
+        log(f"process_video_file {file_path} {lang}, the output fill will be {file_path}.txt" )
+        process = subprocess.run(["whisper", file_path, "--language", lang, "--verbose", "True"], text=True)
+        log(f"process_video_file done: {process}")
+        shutil.copy(f"{file_path}.txt", outputfile)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Fetch the contents from a website and summarize the contents using OpenAI GPT-3")
+        description="Fetch the contents from a website and summarize the contents using OpenAI ChatGPT")
     parser.add_argument("--base-url", type=str, default="https://pjq.me/?p=1906",
                         help="The website to fetch the links and contents from")
     parser.add_argument("--chunk-size", type=int, default=1024 * 4, help="The size of each smaller file in bytes")
     parser.add_argument("--retries", type=int, default=2,
-                        help="The number of retries when sending a file to the OpenAI GPT-3 model")
+                        help="The number of retries when sending a file to the OpenAI ChatGPT model")
     parser.add_argument("--sleep-time", type=int, default=1, help="The time to wait between each file in seconds")
     parser.add_argument("--text-file", type=str, help="The text file to summarize")
     parser.add_argument("--video-file", type=str, help="The video file to summarize")
@@ -175,10 +175,7 @@ if __name__ == "__main__":
 
     elif args.video_file:
         # Convert the video file to text using whisper
-        content = bot.process_video_file(args.video_file)
-        with open(LINK_TO_CONTENT, "w") as f:
-            f.write(f"{content}\n")
-            f.close()
+        bot.process_video_file(args.video_file, args.lang, LINK_TO_CONTENT)
     elif args.base_url:
         if TEST_ENABLE:
             print(f"test enable:{TEST_ENABLE}")
